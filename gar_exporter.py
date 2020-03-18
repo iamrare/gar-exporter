@@ -5,7 +5,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 import time, httplib2, os
 
-
 class GarCollector(object):
 
   def collect(self):
@@ -17,24 +16,33 @@ class GarCollector(object):
       yield self._gauges[metric]
 
   def _initialize_analyticsreporting(self):
-    
     credentials = ServiceAccountCredentials.from_p12_keyfile(
       SERVICE_ACCOUNT_EMAIL, KEY_FILE_LOCATION, scopes=SCOPES)
 
     http = credentials.authorize(httplib2.Http())
     analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
-    
+
     return analytics
 
   def _get_report(self, analytics):
-
     return analytics.reports().batchGet(
-        body={
+        body = {
           'reportRequests': [
           {
             'viewId': VIEW_ID,
             'dateRanges': [{'startDate': str(os.getenv('START_DATE')), 'endDate': 'today'}],
-            'metrics': [{'expression': 'ga:sessions'}, {'expression': 'ga:pageviews'}, {'expression': 'ga:users'}, {'expression': 'ga:avgDomainLookupTime'}, {'expression': 'ga:avgPageDownloadTime'}, {'expression': 'ga:avgRedirectionTime'}, {'expression': 'ga:avgServerConnectionTime'}, {'expression': 'ga:avgServerResponseTime'}, {'expression': 'ga:avgPageLoadTime'}]
+            'metrics': [
+              {'expression': 'ga:sessions'},
+              {'expression': 'ga:pageviews'},
+              {'expression': 'ga:users'},
+              # Site Speed
+              {'expression': 'ga:avgDomainLookupTime'},
+              {'expression': 'ga:avgPageDownloadTime'},
+              {'expression': 'ga:avgPageLoadTime'},
+              {'expression': 'ga:avgRedirectionTime'},
+              {'expression': 'ga:avgServerConnectionTime'},
+              {'expression': 'ga:avgServerResponseTime'}
+            ]
           }]
         }
     ).execute()
@@ -65,7 +73,6 @@ class GarCollector(object):
             print(metric + ': ' + returnValue)
             self._gauges[metric] = GaugeMetricFamily('%s_%s' % (METRIC_PREFIX, metric), '%s' % metric, value=None, labels=LABELS)
             self._gauges[metric].add_metric([VIEW_ID, SERVICE_ACCOUNT_EMAIL], value=float(returnValue))
-
 
 if __name__ == '__main__':
   SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
