@@ -9,6 +9,7 @@ ENV BIND_PORT 9173
 ENV START_DATE "2008-01-01"
 ENV ACCOUNT_EMAIL "Replace@Me"
 ENV VIEW_ID "12345678"
+ENV SECRETS_FILE './client_secrets.p12'
 
 ADD . /usr/src/app
 WORKDIR /usr/src/app

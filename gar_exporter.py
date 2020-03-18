@@ -77,7 +77,7 @@ class GarCollector(object):
 if __name__ == '__main__':
   SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
   DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
-  KEY_FILE_LOCATION = './client_secrets.p12'
+  KEY_FILE_LOCATION =  str(os.getenv('SECRETS_FILE'))
   SERVICE_ACCOUNT_EMAIL = str(os.getenv('ACCOUNT_EMAIL'))
   VIEW_ID = str(os.getenv('VIEW_ID'))
 
